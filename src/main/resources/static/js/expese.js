@@ -199,12 +199,17 @@ $(document).ready(loadExpenseDetails(''));
 		}
 		
 		function printDiv(divName){
+			// getting only the required div for print
 			var printContents = document.getElementById(divName).innerHTML;
 			var tableContents = document.getElementById('expensetable').innerHTML;
+			// getting the original dom
 			var originalContents = document.body.innerHTML;
-
+			var selectedMonth = document.getElementById('month').value;
 			document.body.innerHTML = printContents + tableContents;
+			// window print
 			window.print();
+			// again setting the orginal dom
 			document.body.innerHTML = originalContents;
+			document.getElementById('month').value= selectedMonth;
 
 		}
