@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>My Expense Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- See configuration in WebMvConfig.java -->
+<link th:href="@{/bootstrap/css/bootstrap.min.css}" rel="stylesheet"
+	media="screen" />
+
+
+<script th:src="@{/jquery/jquery.min.js}"></script>
+<script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+<script src="js/expese.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/font-awesome.min.css">
+<link rel=icon href=img/ExpenseLogo.png type="image/png">
+<link rel="stylesheet" href="css/expense.css">
+</head>
+
+<body>
+	<!--  header -->
+	<div class="container noprint">
+		<div class="row">
+			<div class="col-sm-4">
+				<img src="img/Expenseheader.png" class="img-rounded"
+					alt="Expensetracker" width="100" height="100">
+			</div>
+			<div class="col-sm-4 headertext">My Expense Tracker</div>
+			<div class="col-sm-4 text-right print">
+				<a class="fa fa-print print" href="#"
+					onclick="printDiv('printExpense')"></a>
+			</div>
+		</div>
+		<hr class="bg-warning">
+	</div>
+
+	<!--  Add expense -->
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<p class="header">Add Expense Details</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="row">
+					<div class="col-sm-6 text-right">
+						<label class="label required" for="expenseDate">Expense
+							Date:</label>
+					</div>
+					<div class="col-sm-6 ">
+						<input type="date" class="form-control" id="expenseDate"
+							name="expenseDate" min="2021-01-01">
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="row">
+					<div class="col-sm-6 text-right">
+						<label class="label required" for="expenseType">Expense
+							Type:</label>
+					</div>
+					<div class="col-sm-6">
+						<select class="form-control" name="expenseType" id="expenseType">
+							<option value=""></option>
+							<option value="Home">Home</option>
+							<option value="Individual">Individual</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="row">
+					<div class="col-sm-6 text-right">
+						<label class="label required" for="plannedExpense">Planned
+							Expense:</label>
+					</div>
+					<div class="col-sm-6">
+						<select class="form-control" name="plannedExpense"
+							id="plannedExpense">
+							<option value=""></option>
+							<option value="Yes">Yes</option>
+							<option value="No">No</option>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="row">
+					<div class="col-sm-6 text-right">
+						<label class="label required" for="description">Description:</label>
+					</div>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" id="description"
+							name="description">
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<div class="row">
+					<div class="col-sm-6 text-right">
+						<label class="label required" for="expenseAmount">Expense
+							Amount:</label>
+					</div>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" id="expenseAmount"
+							name="expenseAmount">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-12 header">
+				<button type="button" class="btn expbtn" onclick="createExpense()">Create
+					Expense</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="displaymsg" id="createstatus"></div>
+			</div>
+		</div>
+		<hr class="bg-warning">
+	</div>
+
+	<!-- view expense -->
+	<div class="container">
+		<div id="printExpense" class="row">
+			<div class="col-sm-12">
+				<p class="header">
+					Expense Details<span id="expMonth"></span>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="displaymsg" id="deletestatus"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="row">
+					<div class="col-sm-4 text-right">
+						<label class="label" for="year">Expense Year:</label>
+					</div>
+
+					<div class="col-sm-4">
+						<input class="form-control" type="month" id="month" min="2021-01">
+					</div>
+					<div class="col-sm-4 text-right">
+						<label class="label" for="plannedExpense">Planned Expense:</label>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="row">
+					<div class="col-sm-4">
+						<select class="form-control" name="plannedExpenseSearch"
+							id="plannedExpenseSearch">
+							<option value="">Both</option>
+							<option value="Yes">Yes</option>
+							<option value="No">No</option>
+						</select>
+					</div>
+					<div class="col-sm-4">
+						<button type="button" class="btn expbtn btn-sm" name="search"
+							id="search" onclick="searchExpense()">Search</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="expensetable" class="row">
+			<div class="col-sm-12">
+				<table class="table table-hover">
+					<thead>
+						<tr class="bg-warning">
+							<th>ID</th>
+							<th>Year</th>
+							<th>Month</th>
+							<th>Expense Date</th>
+							<th>Expense Type</th>
+							<th>Planned Expense</th>
+							<th>Description</th>
+							<th>Expense Amount</th>
+							<th style="width: 5%" class="noprint"></th>
+						</tr>
+					</thead>
+					<tbody id="tBody">
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
