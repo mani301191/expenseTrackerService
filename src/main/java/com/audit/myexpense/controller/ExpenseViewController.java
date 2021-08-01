@@ -8,11 +8,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ * @author Manikandan Narasimhan
+ *
+ */
 @Controller
 public class ExpenseViewController {
 
-    @RequestMapping("/")
-    public String helloWorld(Model model) {
-        return "myexpense";
-    }
+	/**
+	 * @param model
+	 * @return myexpense
+	 */
+	@RequestMapping("/")
+	public String myexpense(Model model) {
+		return "myexpense";
+	}
 }

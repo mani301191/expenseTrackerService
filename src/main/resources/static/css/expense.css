@@ -90,7 +90,7 @@
 	background-color: #fd7e14;
 }
 
-td {
+th, td {
 	text-align: center;
 }
 
@@ -102,6 +102,18 @@ td {
 
 .empty {
 	border: 1px solid red;
+}
+
+.alignleft {
+	text-align: left;
+}
+
+.alignright {
+	text-align: right;
+}
+
+.aligncenter {
+	text-align: center;
 }
 
 @media print {
