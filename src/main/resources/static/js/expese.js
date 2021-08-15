@@ -236,7 +236,7 @@ $(document).ready(loadExpenseDetails(''));
 								+ data[i].amount;
 					}
 					trHTML += '<tr  class="noprint" ><td></td><td></td><td></td><td></td><td>'
-							+ '<B>Total Expense : </B>'
+							+ '<B>Total Income : </B>'
 							+ '</td><td>'
 							+ totalIncome
 							+ '</td></tr>';
