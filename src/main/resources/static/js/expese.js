@@ -60,6 +60,16 @@ $(document).ready(loadExpenseDetails(''));
 												unplannedExp = unplannedExp + data[i].amount
 												}
 											}
+											//groupby
+											var groupByData =  groupBy(data, d => d.expenseType);
+											var amountMap = [];
+											groupByData.forEach((value, key) => {
+												var totalAmount =0;
+												value.forEach((v) => 
+												totalAmount = totalAmount+ v.amount);
+												amountMap.push({'x':key, 'value':totalAmount});
+											})
+											loadpiechart(amountMap,data[0].expenseDate);
 											trHTML += '<tr  class="noprint" ><td></td><td></td><td></td><td></td><td></td><td></td><td>'
 													+ '<B>Total Expense : </B>'
 													+ '</td><td>'
@@ -120,7 +130,6 @@ $(document).ready(loadExpenseDetails(''));
         	        setTimeout(function() {
                         $('#createstatus').empty();
                     }, 5000);
-        	       console.log( "current val "+document.getElementById('month').value);
         	       document.getElementById('month').value=  dateObj.getFullYear()+'-'+(dateObj.getMonth()+1).toString().padStart(2, '0');
         	        searchExpense();
        	         },
@@ -253,8 +262,10 @@ $(document).ready(loadExpenseDetails(''));
 		}
 		
 		function onloadCurrentDate(dateObj) {
+			if(dateObj) {
 			document.getElementById('month').value=  dateObj.getFullYear()+'-'+(dateObj.getMonth()+1).toString().padStart(2, '0');
 			$('#expMonth').text(' ('+getMonths(dateObj) + ' - '+ getYear(dateObj)+ ')');
+			}
 		}
 		
 		function deleteExpense(id) {
@@ -318,9 +329,9 @@ $(document).ready(loadExpenseDetails(''));
 	        'padding:0.5em;' +
 	        '}' +
 	        '</style>';
-			
+			var piechart=document.getElementById('piechartContainer').innerHTML;
 			document.body.innerHTML = htmlToPrint+incomeTitle+incomeDetails +printContents + tableContents+ expsummary+
-			ovearallStatus;
+			ovearallStatus + piechart;
 			// window print
 			window.print();
 			// again setting the orginal dom
@@ -387,12 +398,14 @@ $(document).ready(loadExpenseDetails(''));
 			var docName = document.getElementById('docName').value;
 			var docNumber = document.getElementById('docNumber').value;
 			var docValidity = document.getElementById('docValidity').value;
+			var personDoc = document.getElementById('personDoc').value;
 			var remarks = document.getElementById('personalRemarks').value;
-			if(docName && docNumber&&remarks) {
+			if(docName && docNumber&&remarks && personDoc) {
 			 var reqObj = {
      		        "recordName": docName,
      		        "recordNumber": docNumber,
      		        "recordValidity": docValidity,
+     		        "personDoc": personDoc,
      		        "remarks": remarks
      	   };
 			  $.ajax({
@@ -418,6 +431,7 @@ $(document).ready(loadExpenseDetails(''));
 			} else {
 				validatCreateField(document.getElementById('docName'),docName);
 				validatCreateField(document.getElementById('docNumber'),docNumber);
+				validatCreateField(document.getElementById('personDoc'),personDoc);
 				validatCreateField(document.getElementById('personalRemarks'),remarks);
 			}
 		}
@@ -426,7 +440,18 @@ $(document).ready(loadExpenseDetails(''));
 			document.getElementById('docName').value= '';
 			document.getElementById('docNumber').value= '';
 			document.getElementById('docValidity').value= '';
+			document.getElementById('personDoc').value= '';
 			document.getElementById('personalRemarks').value= '';
+			
+			removeErrorClass(document.getElementById('docName'));
+			removeErrorClass(document.getElementById('docNumber'));
+			removeErrorClass(document.getElementById('docValidity'));
+			removeErrorClass(document.getElementById('personDoc'));
+			removeErrorClass(document.getElementById('personalRemarks'));
+		}
+		
+		function removeErrorClass(field) {
+			field.classList.remove("empty");
 		}
 		
 		function addAssetInfo() {
@@ -437,8 +462,9 @@ $(document).ready(loadExpenseDetails(''));
 			var assetQty = document.getElementById('assetQuantity').value;
 			var assetVal = document.getElementById('currentValue').value;
 			var assetRemarks = document.getElementById('assetRemarks').value;
+			var personAsset = document.getElementById('personAsset').value;
 			
-			if(assetName && assetDocNum && assetBoughtOn && assetType && assetQty && assetVal) {
+			if(assetName && assetDocNum && assetBoughtOn && assetType && assetQty && assetVal && personAsset) {
 				var reqObj = {
 	     		        "assetName": assetName,
 	     		        "assetDocumentNumber": assetDocNum,
@@ -446,7 +472,8 @@ $(document).ready(loadExpenseDetails(''));
 	     		       "assetType": assetType,
 	     		        "assetQty": assetQty,
 	     		        "assetCurrentValue": assetVal,
-	     		        "remarks": assetRemarks
+	     		        "remarks": assetRemarks,
+	     		        "personAsset": personAsset
 	     	   };
 				$.ajax({
         	        url: '/api/assetDetail/saveAssetDetail',
@@ -476,6 +503,7 @@ $(document).ready(loadExpenseDetails(''));
 				validatCreateField(document.getElementById('assetQuantity'),assetQty);
 				validatCreateField(document.getElementById('currentValue'),assetVal);
 				validatCreateField(document.getElementById('assetRemarks'),assetRemarks);
+				validatCreateField(document.getElementById('personAsset'),personAsset);
 			}
 		}
 		
@@ -487,6 +515,16 @@ $(document).ready(loadExpenseDetails(''));
 			document.getElementById('assetQuantity').value= '';
 			document.getElementById('currentValue').value= '';
 			document.getElementById('assetRemarks').value= '';
+			document.getElementById('personAsset').value= '';
+			
+			removeErrorClass(document.getElementById('assetName'));
+			removeErrorClass(document.getElementById('assetNumber'));
+			removeErrorClass(document.getElementById('boughtOn'));
+			removeErrorClass(document.getElementById('assetType'));
+			removeErrorClass(document.getElementById('assetQuantity'));
+			removeErrorClass(document.getElementById('currentValue'));
+			removeErrorClass(document.getElementById('assetRemarks'));
+			removeErrorClass(document.getElementById('personAsset'));
 		}
 		
 		function displayPersonalData() {
@@ -511,6 +549,8 @@ $(document).ready(loadExpenseDetails(''));
 								+ data[i].recordNumber
 								+ '</td><td>'
 								+ data[i].recordValidity
+								+ '</td><td>'
+								+ data[i].personDoc
 								+ '</td><td>'
 								+ data[i].remarks
 								+ '</td><td class="noprint">'
@@ -595,6 +635,8 @@ $(document).ready(loadExpenseDetails(''));
 								+ '</td><td>'
 								+ data[i].assetCurrentValue
 								+ '</td><td>'
+								+ data[i].personAsset
+								+ '</td><td>'
 								+ data[i].remarks
 								+ '</td><td class="noprint">'
 								+'<button class="btn center noprint" onclick="deleteAssetDetails('
@@ -648,3 +690,57 @@ $(document).ready(loadExpenseDetails(''));
 			// again setting the orginal dom
 			document.body.innerHTML = originalContents;
 		}
+		
+	// pieChart
+		function loadpiechart(expenseData, expDate) {
+			expDate = new Date(expDate);
+		anychart.onDocumentReady(function() {
+			  // create the chart
+			  var chart = anychart.pie3d();
+			  // set the chart title
+			  chart.title('Expense Details ('+ getMonths(expDate) + ' - '+ getYear(expDate)+ ')');
+			  // add the data
+			  chart.data(expenseData);
+		     // set the position of the legend
+			  chart.legend().position("bottom");
+			  // set the alignment of the legend
+			  chart.legend().align("center");
+			  // set items layout
+			  chart.legend().itemsLayout("horizantal-expandable"); 
+			  chart.labels().position("outside");
+			  // remove the data
+			  document.getElementById('piechart').innerHTML = ""
+			  // display the chart in the container
+			  chart.container('piechart');
+			  chart.draw();
+		});
+		}
+		
+	// groupBy method	
+		function groupBy(list, keyGetter) {
+		    const map = new Map();
+		    list.forEach((item) => {
+		         const key = keyGetter(item);
+		         const collection = map.get(key);
+		         if (!collection) {
+		             map.set(key, [item]);
+		         } else {
+		             collection.push(item);
+		         }
+		    });
+		    return map;
+		}
+		
+		function validateNumber(e,divName) {
+             var pattern = /^[0-9]$/;
+             var isNumber = pattern.test(e.key );
+             if(!isNumber){
+            	 document.getElementById(divName).innerHTML = 'Enter only numbers'; 
+             }else{
+            	 document.getElementById(divName).innerHTML = ''; 
+             }
+	           setTimeout(function() {
+	        	   document.getElementById(divName).innerHTML = '';
+               }, 2000);
+            return isNumber;
+        }

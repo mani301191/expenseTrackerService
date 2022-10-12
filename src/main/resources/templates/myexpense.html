@@ -12,6 +12,8 @@
 
 <script th:src="@{/jquery/jquery.min.js}"></script>
 <script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+<script src="js/anychart-core.min.js"></script>
+<script src="js/anychart-pie.min.js"></script>
 <script src="js/expese.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/font-awesome.min.css">
@@ -107,7 +109,8 @@
 						</div>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="docNumber"
-								name="docNumber">
+								name="docNumber" onkeypress="return validateNumber(event,'errorDocNumber')">
+								<div id="errorDocNumber" class="displayErrormsg"></div>
 						</div>
 					</div>
 				</div>
@@ -133,6 +136,24 @@
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="personalRemarks"
 								name="personalRemarks">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="row">
+						<div class="col-sm-6 text-right">
+							<label class="label required" for="docBelongsTo">
+								Document of :</label>
+						</div>
+						<div class="col-sm-6">
+							<select class="form-control" name="personDoc" id="personDoc">
+								<option value=""></option>
+								<option value="Manikandan">Manikandan</option>
+								<option value="Muthulakshmi">Muthulakshmi</option>
+								<option value="Akshara">Akshara</option>
+							</select>
 						</div>
 					</div>
 				</div>
@@ -171,6 +192,7 @@
 								<th>Name</th>
 								<th>Number</th>
 								<th>Validity</th>
+								<th>Document Owner</th>
 								<th>Remarks</th>
 								<th style="width: 5%" class="noprint"></th>
 							</tr>
@@ -213,7 +235,8 @@
 						</div>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="assetNumber"
-								name="assetNumber">
+								name="assetNumber" onkeypress="return validateNumber(event,'errorAssetNumber')">
+								<div id="errorAssetNumber" class="displayErrormsg"></div>
 						</div>
 					</div>
 				</div>
@@ -250,7 +273,8 @@
 						</div>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="assetQuantity"
-								name="assetQuantity">
+								name="assetQuantity"  onkeypress="return validateNumber(event,'errorAssetQuantity')">
+								<div id="errorAssetQuantity" class="displayErrormsg"></div>
 						</div>
 					</div>
 				</div>
@@ -261,7 +285,8 @@
 						</div>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="currentValue"
-								name="currentValue">
+								name="currentValue" onkeypress="return validateNumber(event,'errorCurrentValue')">
+								<div id="errorCurrentValue" class="displayErrormsg"></div>
 						</div>
 					</div>
 				</div>
@@ -279,7 +304,25 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-sm-4">
+					<div class="row">
+						<div class="col-sm-6 text-right">
+							<label class="label required" for="assetBelongsTo"> Asset
+								of :</label>
+						</div>
+						<div class="col-sm-6">
+							<select class="form-control" name="personAsset" id="personAsset">
+								<option value=""></option>
+								<option value="Manikandan">Manikandan</option>
+								<option value="Muthulakshmi">Muthulakshmi</option>
+								<option value="Akshara">Akshara</option>
+								<option value="Others">Others</option>
+							</select>
+						</div>
+					</div>
+				</div>
 			</div>
+
 			<div class="row">
 				<div class="col-sm-12 header">
 					<button type="button" class="btn expbtn btn-sm"
@@ -317,6 +360,7 @@
 								<th>Asset Type</th>
 								<th>Asset Qty</th>
 								<th>Asset Value</th>
+								<th>Asset Owner</th>
 								<th>Remarks</th>
 								<th style="width: 5%" class="noprint"></th>
 							</tr>
@@ -363,7 +407,10 @@
 							<select class="form-control" name="expenseType" id="expenseType">
 								<option value=""></option>
 								<option value="Home">Home</option>
-								<option value="Individual">Individual</option>
+								<option value="Manikandan">Manikandan</option>
+								<option value="Muthulakshmi">Muthulakshmi</option>
+								<option value="Akshara">Akshara</option>
+								<option value="Others">Others</option>
 							</select>
 						</div>
 					</div>
@@ -405,7 +452,8 @@
 						</div>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="expenseAmount"
-								name="expenseAmount">
+								name="expenseAmount" onkeypress="return validateNumber(event,'errorExpenseAmount')">
+								<div id="errorExpenseAmount" class="displayErrormsg"></div>
 						</div>
 					</div>
 				</div>
@@ -463,7 +511,8 @@
 						</div>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" id="incomeAmount"
-								name="incomeAmount">
+								name="incomeAmount" onkeypress="return validateNumber(event,'errorIncomeAmount')">
+								<div id="errorIncomeAmount" class="displayErrormsg"></div>
 						</div>
 					</div>
 				</div>
@@ -627,6 +676,14 @@
 				<div class="col-sm-12">
 					<B> Total Savings : </B> <span id="savings"></span>
 				</div>
+			</div>
+		</div>
+	</div>
+	<!-- pie chart -->
+	<div class="container" id ="piechartContainer">
+		<div class="row">
+			<div class="col-sm-12" >
+				<div id="piechart" class="piechartDisplay"></div>
 			</div>
 		</div>
 	</div>

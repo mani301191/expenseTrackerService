@@ -40,7 +40,10 @@ public class AssetDetails {
 	
 	@JsonProperty("remarks")
 	private String remarks;
-
+	
+	@JsonProperty("personAsset")
+	private String personAsset;
+	
 	public AssetDetails() {
 		super();
 	}
@@ -122,4 +125,12 @@ public class AssetDetails {
 		this.remarks = remarks;
 	}
 
+	public String getPersonAsset() {
+		return personAsset;
+	}
+
+	public void setPersonAsset(String personAsset) {
+		this.personAsset = personAsset;
+	}
+	
 }

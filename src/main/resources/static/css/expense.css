@@ -121,3 +121,20 @@ th, td {
 		visibility: hidden;
 	}
 }
+
+.piechartDisplay {
+	height: 370px;
+	width: 100%;
+	position: absolute;
+}
+
+.displayErrormsg {
+	font-style: Normal;
+	font-size: 15px;
+	color: red;
+	text-align: center;
+}
+
+.anychart-credits{
+	display: none !important; 
+}

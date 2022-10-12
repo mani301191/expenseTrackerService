@@ -27,6 +27,9 @@ public class PersonalDetails {
 
 	@JsonProperty("recordValidity")
 	private String recordValidity = "N/A";
+	
+	@JsonProperty("personDoc")
+	private String personDoc;
 
 	@JsonProperty("remarks")
 	private String remarks;
@@ -82,6 +85,14 @@ public class PersonalDetails {
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
+	}
+
+	public String getPersonDoc() {
+		return personDoc;
+	}
+
+	public void setPersonDoc(String personDoc) {
+		this.personDoc = personDoc;
 	}
 
 }
