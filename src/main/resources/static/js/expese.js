@@ -69,7 +69,7 @@ $(document).ready(loadExpenseDetails(''));
 												totalAmount = totalAmount+ v.amount);
 												amountMap.push({'x':key, 'value':totalAmount});
 											})
-											loadpiechart(amountMap,data[0].expenseDate);
+											loadpiechart(amountMap,data[0]!= undefined ? data[0].expenseDate : new Date());
 											trHTML += '<tr  class="noprint" ><td></td><td></td><td></td><td></td><td></td><td></td><td>'
 													+ '<B>Total Expense : </B>'
 													+ '</td><td>'
