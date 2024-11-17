@@ -1,1 +1,0 @@
-java -jar .\target\myexpense-0.0.1-SNAPSHOT.jar
