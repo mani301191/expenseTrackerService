@@ -4,24 +4,18 @@
 
 package com.audit.myexpense.controller;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.audit.myexpense.model.MonthlySummary;
-import com.audit.myexpense.model.YearlySummary;
+import com.audit.myexpense.model.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-
-import com.audit.myexpense.model.ExpenseDetails;
-import com.audit.myexpense.model.IncomeDetails;
 
 import javax.validation.Valid;
 
@@ -200,45 +194,99 @@ public class ExpenseTrackerController {
 
 		Map<String,MonthlySummary> incomeSummaryMap =  aggregationResults(criteria,"income","myIncomeDetail")
 				.getMappedResults().stream().collect(Collectors.toMap(exp->exp.getYear()+exp.getMonth(),exp->exp));
+		// estimate datas
+		final Query query =  new Query(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
+		List<MonthlyTarget> result = mongoTemplate.find(query, MonthlyTarget.class);
+		Map<String,Double> estimateMap = result.stream().collect(Collectors.toMap(r->r.year+r.month,r->r.amount));
 
 		for(MonthlySummary summary :expenseSummaryMap.values() ){
 			MonthlySummary incomeDetail = incomeSummaryMap.get(summary.getYear()+summary.getMonth());
 			summary.setIncome(incomeDetail!=null?incomeDetail.getIncome():0.0);
 			summary.setSavings(incomeDetail!=null?incomeDetail.getIncome()-summary.getExpense():0.0-summary.getExpense());
+			summary.setEstimated(estimateMap.get(summary.getYear()+summary.getMonth()));
 			response.add(summary);
 		}
 		for(MonthlySummary incomeSummary :incomeSummaryMap.values()) {
 			if(expenseSummaryMap.get(incomeSummary.getYear()+incomeSummary.getMonth()) == null) {
 				incomeSummary.setSavings(incomeSummary.getIncome());
+				incomeSummary.setEstimated(estimateMap.get(incomeSummary.getYear()+incomeSummary.getMonth()));
 				response.add(incomeSummary);
 			}
 		}
+
 		return response;
 	}
 
 	@GetMapping("/yearlySummary")
 	public List<YearlySummary> yearlySummary() {
 		List<YearlySummary> response = new ArrayList<>();
+		//Fetch all documents from db
+		List<IncomeDetails> incomeResult = mongoTemplate.find(new Query(), IncomeDetails.class);
+		List<ExpenseDetails> expenseResult = mongoTemplate.find(new Query(), ExpenseDetails.class);
+		List<MonthlyTarget> estimatedResult = mongoTemplate.find(new Query(), MonthlyTarget.class);
+		// map based on year
+		Map<Integer,List<IncomeDetails>> incomeMap = incomeResult.stream().collect(Collectors.groupingBy(r->r.getYear()));
+		Map<Integer,List<ExpenseDetails>> expenseMap = expenseResult.stream().collect(Collectors.groupingBy(r->r.getYear()));
+		Map<Integer,List<MonthlyTarget>> estimateMap = estimatedResult.stream().collect(Collectors.groupingBy(r->r.year));
 
-		Map<Integer, YearlySummary> expenseSummaryMap = aggregationYearlyResults("expense","myExpenseDetail")
-				.getMappedResults().stream().collect(Collectors.toMap(exp->exp.getYear(),exp->exp));
-
-		Map<Integer,YearlySummary> incomeSummaryMap =  aggregationYearlyResults("income","myIncomeDetail")
-				.getMappedResults().stream().collect(Collectors.toMap(exp->exp.getYear(),exp->exp));
-
-		for(YearlySummary summary :expenseSummaryMap.values() ){
-			YearlySummary incomeDetail = incomeSummaryMap.get(summary.getYear());
-			summary.setIncome(incomeDetail!=null?incomeDetail.getIncome():0.0);
-			summary.setSavings(incomeDetail!=null?incomeDetail.getIncome()-summary.getExpense():0.0-summary.getExpense());
-			response.add(summary);
-		}
-		for(YearlySummary incomeSummary :incomeSummaryMap.values()) {
-			if(expenseSummaryMap.get(incomeSummary.getYear()) == null) {
-				incomeSummary.setSavings(incomeSummary.getIncome());
-				response.add(incomeSummary);
+		for(Integer year: expenseMap.keySet() ){
+			YearlySummary yearlyData = new YearlySummary();
+			//get the data based on year
+			List<IncomeDetails> incomeList = incomeMap.get(year);
+			List<ExpenseDetails> expensList = expenseMap.get(year);
+			List<MonthlyTarget> estimateList = estimateMap.get(year);
+			List<Category> categorylist = new ArrayList<>();
+			// sum all the date based on year
+			yearlyData.year = year;
+			yearlyData.income = incomeList!=null?incomeList.stream().mapToDouble(r->r.getAmount()).sum():0.0;
+			yearlyData.expense = expensList!=null?expensList.stream().mapToDouble(r->r.getAmount()).sum():0.0;
+			yearlyData.estimated = estimateList!=null?estimateList.stream().mapToDouble(r->r.amount).sum():0.0;
+			yearlyData.savings = yearlyData.income - yearlyData.expense;
+            //expense category
+			Map<String,List<ExpenseDetails>> categoryMap = expenseMap.get(year)
+					.stream().collect(Collectors.groupingBy(r->r.getExpenseType()));
+			//category Type data
+			for(String category: categoryMap.keySet()) {
+				Category categoryType = new Category();
+				categoryType.expenseType = category;
+				List<ExpenseDetails> catList= categoryMap.get(category);
+				categoryType.amount = catList!=null ? catList.stream().mapToDouble(r->r.getAmount()).sum():0.0;
+				categorylist.add(categoryType);
 			}
+			yearlyData.category=categorylist;
+			response.add(yearlyData);
 		}
+		// comprator logic
+		Comparator<YearlySummary> dateComparator = (c1, c2) -> {
+			return c1.year.compareTo(c2.year);
+		};
+		Collections.sort(response, dateComparator);
 		return response;
+	}
+	/**
+	 * @param monthlyTarget
+	 * @return monthlyTarget
+	 */
+	@PostMapping("/monthlyTarget")
+	public MonthlyTarget monthlyTargetDetail(@Valid @RequestBody MonthlyTarget monthlyTarget) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(monthlyTarget.date);
+		monthlyTarget.month=cal.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, Locale.ENGLISH);
+		monthlyTarget.year=cal.get(Calendar.YEAR);
+		return mongoTemplate.save(monthlyTarget);
+	}
+
+	/**
+	 * @param year
+	 * @param month
+	 * @return monthlyTarget
+	 */
+	@GetMapping("/monthlyTarget")
+	public MonthlyTarget monthlyTarget(@RequestParam(required = true) Integer year,
+									   @RequestParam(required = true) String month) {
+		final Query query =  new Query(Criteria.where("year").is(year).and("month").is(month));
+		MonthlyTarget result = mongoTemplate.findOne(query, MonthlyTarget.class);
+		return result != null ? result : new MonthlyTarget();
 	}
 
 	private AggregationResults<MonthlySummary> aggregationResults(List<Criteria> criteria,String attribute,String collectionName) {
@@ -251,12 +299,4 @@ public class ExpenseTrackerController {
 	return expenseResults;
 	}
 
-	private AggregationResults<YearlySummary> aggregationYearlyResults( String attribute,String collectionName) {
-		Aggregation yearlyAgg = newAggregation(
-				group("year").sum("amount").as(attribute),
-				project(attribute,"year")
-		);
-		AggregationResults<YearlySummary> expenseResults = mongoTemplate.aggregate(yearlyAgg,collectionName ,YearlySummary.class);
-		return expenseResults;
-	}
 }

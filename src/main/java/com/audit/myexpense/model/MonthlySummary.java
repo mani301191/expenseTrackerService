@@ -7,6 +7,7 @@ public class MonthlySummary {
     private double expense;
     private double income;
     private double savings;
+    private double estimated;
 
     public MonthlySummary() {
 
@@ -50,5 +51,13 @@ public class MonthlySummary {
 
     public void setSavings(double savings) {
         this.savings = savings;
+    }
+
+    public double getEstimated() {
+        return estimated;
+    }
+
+    public void setEstimated(double estimated) {
+        this.estimated = estimated;
     }
 }
