@@ -48,11 +48,11 @@ public class ExpenseTrackerController {
 		query.with( Sort.by(Sort.Direction.DESC, "expenseId"));
 		query.limit(1);
 		ExpenseDetails maxObject = mongoTemplate.findOne(query, ExpenseDetails.class);
-		expenseDetails.setExpenseId(maxObject!= null ?maxObject.getExpenseId()+1:0);
+		expenseDetails.expenseId= maxObject!= null ?maxObject.expenseId+1:0;
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(expenseDetails.getExpenseDate());
-		expenseDetails.setMonth( cal.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, Locale.ENGLISH));
-		expenseDetails.setYear(cal.get(Calendar.YEAR));
+		cal.setTime(expenseDetails.expenseDate);
+		expenseDetails.month= cal.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, Locale.ENGLISH);
+		expenseDetails.year=cal.get(Calendar.YEAR);
 		return mongoTemplate.insert(expenseDetails);
 	}
 
@@ -88,7 +88,7 @@ public class ExpenseTrackerController {
 		List<ExpenseDetails> expenseDetails = mongoTemplate.find(query, ExpenseDetails.class);
 		// comprator logic
 		Comparator<ExpenseDetails> dateComparator = (c1, c2) -> {
-			return c1.getExpenseDate().getTime() > c2.getExpenseDate().getTime()?-1:1;
+			return c1.expenseDate.getTime() > c2.expenseDate.getTime()?-1:1;
 		};
 		Collections.sort(expenseDetails, dateComparator);
 		return expenseDetails;
@@ -228,7 +228,7 @@ public class ExpenseTrackerController {
 		List<MonthlyTarget> estimatedResult = mongoTemplate.find(query, MonthlyTarget.class);
 		// map based on year
 		Map<Integer,List<IncomeDetails>> incomeMap = incomeResult.stream().collect(Collectors.groupingBy(r->r.getYear()));
-		Map<Integer,List<ExpenseDetails>> expenseMap = expenseResult.stream().collect(Collectors.groupingBy(r->r.getYear()));
+		Map<Integer,List<ExpenseDetails>> expenseMap = expenseResult.stream().collect(Collectors.groupingBy(r->r.year));
 		Map<Integer,List<MonthlyTarget>> estimateMap = estimatedResult.stream().collect(Collectors.groupingBy(r->r.year));
 
 		for(Integer key: expenseMap.keySet() ){
@@ -241,18 +241,18 @@ public class ExpenseTrackerController {
 			// sum all the date based on year
 			yearlyData.year = key;
 			yearlyData.income = incomeList!=null?incomeList.stream().mapToDouble(r->r.getAmount()).sum():0.0;
-			yearlyData.expense = expensList!=null?expensList.stream().mapToDouble(r->r.getAmount()).sum():0.0;
+			yearlyData.expense = expensList!=null?expensList.stream().mapToDouble(r->r.amount).sum():0.0;
 			yearlyData.estimated = estimateList!=null?estimateList.stream().mapToDouble(r->r.amount).sum():0.0;
 			yearlyData.savings = yearlyData.income - yearlyData.expense;
             //expense category
 			Map<String,List<ExpenseDetails>> categoryMap = expenseMap.get(key)
-					.stream().collect(Collectors.groupingBy(r->r.getExpenseType()));
+					.stream().collect(Collectors.groupingBy(r->r.expenseType));
 			//category Type data
 			for(String category: categoryMap.keySet()) {
 				Category categoryType = new Category();
 				categoryType.expenseType = category;
 				List<ExpenseDetails> catList= categoryMap.get(category);
-				categoryType.amount = catList!=null ? catList.stream().mapToDouble(r->r.getAmount()).sum():0.0;
+				categoryType.amount = catList!=null ? catList.stream().mapToDouble(r->r.amount).sum():0.0;
 				categorylist.add(categoryType);
 			}
 			yearlyData.category=categorylist;
