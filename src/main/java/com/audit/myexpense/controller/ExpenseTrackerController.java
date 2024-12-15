@@ -197,19 +197,20 @@ public class ExpenseTrackerController {
 		// estimate datas
 		final Query query =  new Query(new Criteria().andOperator(criteria.toArray(new Criteria[criteria.size()])));
 		List<MonthlyTarget> result = mongoTemplate.find(query, MonthlyTarget.class);
-		Map<String,Double> estimateMap = result.stream().collect(Collectors.toMap(r->r.year+r.month,r->r.amount));
-
 		for(MonthlySummary summary :expenseSummaryMap.values() ){
 			MonthlySummary incomeDetail = incomeSummaryMap.get(summary.getYear()+summary.getMonth());
 			summary.setIncome(incomeDetail!=null?incomeDetail.getIncome():0.0);
 			summary.setSavings(incomeDetail!=null?incomeDetail.getIncome()-summary.getExpense():0.0-summary.getExpense());
-			summary.setEstimated(estimateMap.get(summary.getYear()+summary.getMonth()));
+			summary.setEstimated(result.stream().filter(estimate -> estimate.year== summary.getYear() &&
+						estimate.month.equals(summary.getMonth())).mapToDouble(t->t.amount).sum());
+
 			response.add(summary);
 		}
 		for(MonthlySummary incomeSummary :incomeSummaryMap.values()) {
 			if(expenseSummaryMap.get(incomeSummary.getYear()+incomeSummary.getMonth()) == null) {
 				incomeSummary.setSavings(incomeSummary.getIncome());
-				incomeSummary.setEstimated(estimateMap.get(incomeSummary.getYear()+incomeSummary.getMonth()));
+				incomeSummary.setEstimated(result.stream().filter(estimate -> estimate.year== incomeSummary.getYear() &&
+						estimate.month.equals(incomeSummary.getMonth())).mapToDouble(t->t.amount).sum());
 				response.add(incomeSummary);
 			}
 		}
@@ -267,16 +268,21 @@ public class ExpenseTrackerController {
 		return response;
 	}
 	/**
-	 * @param monthlyTarget
+	 * @param List of MonthlyTarget
 	 * @return monthlyTarget
 	 */
 	@PostMapping("/monthlyTarget")
-	public MonthlyTarget monthlyTargetDetail(@Valid @RequestBody MonthlyTarget monthlyTarget) {
+	public Collection<MonthlyTarget> monthlyTargetDetail(@Valid @RequestBody Collection<MonthlyTarget> monthlyTargetList) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(monthlyTarget.date);
-		monthlyTarget.month=cal.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, Locale.ENGLISH);
-		monthlyTarget.year=cal.get(Calendar.YEAR);
-		return mongoTemplate.save(monthlyTarget);
+		for(MonthlyTarget monthlyTarget :monthlyTargetList) {
+			cal.setTime(monthlyTarget.date);
+			monthlyTarget.month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, Locale.ENGLISH);
+			monthlyTarget.year = cal.get(Calendar.YEAR);
+		}
+        for( MonthlyTarget monthlyTarget: monthlyTargetList) {
+            mongoTemplate.save(monthlyTarget);
+        }
+		return monthlyTargetList;
 	}
 
 	/**
@@ -285,11 +291,65 @@ public class ExpenseTrackerController {
 	 * @return monthlyTarget
 	 */
 	@GetMapping("/monthlyTarget")
-	public MonthlyTarget monthlyTarget(@RequestParam(required = true) Integer year,
+	public List<MonthlyTarget> monthlyTarget(@RequestParam(required = true) Integer year,
 									   @RequestParam(required = true) String month) {
 		final Query query =  new Query(Criteria.where("year").is(year).and("month").is(month));
-		MonthlyTarget result = mongoTemplate.findOne(query, MonthlyTarget.class);
-		return result != null ? result : new MonthlyTarget();
+		return mongoTemplate.find(query, MonthlyTarget.class);
+	}
+
+	/**
+	 * @param year
+	 * @param month
+	 * @return monthlyTarget
+	 */
+	@GetMapping("/plannedExpense")
+	public Set<Dropdown> plannedExpense(@RequestParam(required = true) Integer year,
+											 @RequestParam(required = true) String month) {
+		final Query query =  new Query(Criteria.where("year").is(year).and("month").is(month));
+		Set<Dropdown>	result =mongoTemplate.find(query, MonthlyTarget.class).stream()
+				.map(v-> new Dropdown(v.description,v.description)).collect(Collectors.toSet());
+		result.add(new Dropdown("Others","Others"));
+		return result;
+	}
+	/**
+	 * @param Id
+	 * @return response message
+	 */
+	@DeleteMapping("/monthlyTarget/{id}")
+	public Map<String, Object> deleteMonthlyTarget(@PathVariable("id") String id) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		MonthlyTarget obj = mongoTemplate.findById(id,MonthlyTarget.class);
+		if(obj !=null) {
+			mongoTemplate.remove(obj);
+			body.put("message", "id -"+id.toString() + " deleted sucessfully" );
+		} else {
+			body.put("message ",  "id -" + id.toString() + " not found");
+		}
+		return body;
+	}
+
+	/**
+	 * @param year
+	 * @param month
+	 * @return monthlyTarget
+	 */
+	@GetMapping("/monthlyStatus")
+	public List<MonthlyStatus> monthlyStatus(@RequestParam(required = true) Integer year,
+											 @RequestParam(required = true) String month) {
+		List<MonthlyStatus> result = new ArrayList<>();
+		final Query query =  new Query(Criteria.where("year").is(year).and("month").is(month));
+		List<MonthlyTarget> monthlyList = mongoTemplate.find(query, MonthlyTarget.class);
+		List<ExpenseDetails> expenseDetails = mongoTemplate.find(query, ExpenseDetails.class);
+		for(MonthlyTarget monthlyTarget: monthlyList) {
+			MonthlyStatus monthlyStatus = new MonthlyStatus();
+			monthlyStatus.description = monthlyTarget.description;
+			monthlyStatus.estimatedAmount = monthlyTarget.amount;
+			monthlyStatus.expenseAmount = expenseDetails.stream()
+					.filter(a ->a.expenseOf.equals(monthlyTarget.description))
+					.mapToDouble(d->d.amount).sum();
+			result.add(monthlyStatus);
+		}
+		return result;
 	}
 
 	private AggregationResults<MonthlySummary> aggregationResults(List<Criteria> criteria,String attribute,String collectionName) {
