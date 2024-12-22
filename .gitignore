@@ -1,0 +1,19 @@
+## Any un needed file any where in the project file structure.
+*.class
+*.tmp
+*.jar
+*.html
+*.png
+*.json
+*.csv
+*.DS_Store
+
+## target folder at the top level of the project structue and paths and contents underneath it
+target/
+target/*
+
+
+
+## target folder at any level of the project structue
+**/target
+/target 
