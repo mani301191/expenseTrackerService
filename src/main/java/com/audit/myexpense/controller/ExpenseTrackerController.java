@@ -308,7 +308,6 @@ public class ExpenseTrackerController {
 		final Query query =  new Query(Criteria.where("year").is(year).and("month").is(month));
 		Set<Dropdown>	result =mongoTemplate.find(query, MonthlyTarget.class).stream()
 				.map(v-> new Dropdown(v.description,v.description)).collect(Collectors.toSet());
-		result.add(new Dropdown("Others","Others"));
 		return result;
 	}
 	/**

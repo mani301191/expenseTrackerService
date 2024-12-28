@@ -48,7 +48,6 @@ public class ExpenseDetails implements Serializable {
 	@JsonProperty("expenseOf")
 	public  String expenseOf;
 
-	@NotNull
 	@JsonProperty("description")
 	public  String description;
 
