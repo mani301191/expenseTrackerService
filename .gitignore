@@ -17,3 +17,9 @@ target/*
 ## target folder at any level of the project structue
 **/target
 /target 
+.idea/uiDesigner.xml
+.idea/copyright/Mani.xml
+.idea/copyright/profiles_settings.xml
+src/main/resources/static/*
+target/surefire-reports/com.audit.myexpense.MyExpenseApplicationTests.txt
+target/surefire-reports/TEST-com.audit.myexpense.MyExpenseApplicationTests.xml

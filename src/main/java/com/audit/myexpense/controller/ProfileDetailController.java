@@ -27,7 +27,7 @@ public class ProfileDetailController {
     }
 
     /**
-     * @param profileDetail
+     * @param profileDetail profile detail information
      * @return profileDetail
      */
     @PostMapping("/profileDetail")
