@@ -4,8 +4,6 @@
 
 package com.audit.myexpense.model;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,9 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.audit.myexpense.util.ExpenseCommonUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
