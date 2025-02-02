@@ -46,7 +46,7 @@ public class MonthlyTarget {
 
     @JsonIgnore
     @JsonProperty("updatedDate")
-    private String updatedDate = ExpenseCommonUtil.formattedDate(new Date());
+    public String updatedDate = ExpenseCommonUtil.formattedDate(new Date());
 
     public MonthlyTarget() {
     }

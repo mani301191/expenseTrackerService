@@ -7,6 +7,7 @@
 package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.MonthlyTarget;
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -86,9 +87,15 @@ public class MonthlyTargetController {
             @RequestParam Integer year,
             @RequestParam String month) {
         List<MonthlyTarget> monthlyData=this.monthlyTarget(year,month);
+        List<MonthlyTarget> monthlyDataCopy= new ArrayList<>();
         for(MonthlyTarget data:monthlyData){
-            data.date = new Date();
+            MonthlyTarget dataCopy = new MonthlyTarget();
+            dataCopy=data;
+            dataCopy.date = new Date();
+            dataCopy.id=UUID.randomUUID().toString();
+            dataCopy.updatedDate = ExpenseCommonUtil.formattedDate(new Date());
+            monthlyDataCopy.add(dataCopy);
         }
-        return this.monthlyTargetDetail(monthlyData);
+        return this.monthlyTargetDetail(monthlyDataCopy);
     }
 }
