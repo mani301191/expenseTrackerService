@@ -62,4 +62,12 @@ public class ExpenseDetails implements Serializable {
 	public ExpenseDetails() {
 		// TODO Auto-generated constructor stub
 	}
+
+	public int getExpenseId() {
+		return expenseId;
+	}
+
+	public Date getExpenseDate() {
+		return expenseDate;
+	}
 }

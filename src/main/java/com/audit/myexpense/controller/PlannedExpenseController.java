@@ -7,12 +7,16 @@
 package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.Dropdown;
+import com.audit.myexpense.model.ExpenseDetails;
 import com.audit.myexpense.model.MonthlyTarget;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,10 +40,13 @@ public class PlannedExpenseController {
      * @return monthlyTarget
      */
     @GetMapping("/plannedExpense")
-    public Set<Dropdown> plannedExpense(@RequestParam Integer year,
-                                        @RequestParam String month) {
+    public List<Dropdown> plannedExpense(@RequestParam Integer year,
+                                         @RequestParam String month) {
         final Query query =  new Query(Criteria.where("year").is(year).and("month").is(month));
-        return mongoTemplate.find(query, MonthlyTarget.class).stream()
-                .map(v-> new Dropdown(v.description,v.description)).collect(Collectors.toSet());
+        List<Dropdown> data= mongoTemplate.find(query, MonthlyTarget.class).stream()
+                .map(v-> new Dropdown(v.description,v.description)).collect(Collectors.toList());
+        // comprator logic
+        Collections.sort(data, Comparator.comparing(Dropdown::getId));
+        return data;
     }
 }

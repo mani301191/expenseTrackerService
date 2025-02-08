@@ -52,6 +52,8 @@ public class MonthlyStatusController {
                     .mapToDouble(d->d.amount).sum();
             result.add(monthlyStatus);
         }
+        // sorting
+        result.sort((d1,d2)-> d1.description.compareToIgnoreCase(d2.description));
         return result;
     }
 }

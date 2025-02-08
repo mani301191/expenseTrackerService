@@ -85,10 +85,8 @@ public class ExpenseTrackerController {
 		}
 		List<ExpenseDetails> expenseDetails = mongoTemplate.find(query, ExpenseDetails.class);
 		// comprator logic
-		Comparator<ExpenseDetails> dateComparator = (c1, c2) -> {
-			return c1.expenseDate.getTime() > c2.expenseDate.getTime()?-1:1;
-		};
-		Collections.sort(expenseDetails, dateComparator);
+		Collections.sort(expenseDetails, Comparator.comparing(ExpenseDetails::getExpenseDate)
+				.thenComparing(ExpenseDetails::getExpenseId).reversed());
 		return expenseDetails;
 	}
 
