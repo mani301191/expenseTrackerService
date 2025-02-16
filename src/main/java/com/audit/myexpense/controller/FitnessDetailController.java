@@ -106,7 +106,9 @@ public class FitnessDetailController {
     @GetMapping("/medicalDetails")
     public List<MedicalDetails> medicalDetails(@RequestParam(required = true) String patientName) {
         final Query query =  new Query(Criteria.where("patientName").is(patientName));
-        return mongoTemplate.find( query, MedicalDetails.class);
+        List<MedicalDetails> result =mongoTemplate.find( query, MedicalDetails.class);
+        result.sort((d1,d2)-> d2.date.compareTo(d1.date));
+        return result;
     }
 
     /**
