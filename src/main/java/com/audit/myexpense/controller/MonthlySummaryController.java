@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +29,10 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.proj
 @RestController
 @RequestMapping("/api")
 public class MonthlySummaryController {
+
+   final List<String> monthList = Arrays.asList("January", "February", "March", "April",
+            "May", "June", "July", "August", "September",
+            "October", "November", "December");
 
     private final MongoTemplate mongoTemplate;
     public MonthlySummaryController(MongoTemplate mongoTemplate) {
@@ -62,22 +67,29 @@ public class MonthlySummaryController {
         List<MonthlyTarget> result = mongoTemplate.find(query, MonthlyTarget.class);
         for(MonthlySummary summary :expenseSummaryMap.values() ){
             MonthlySummary incomeDetail = incomeSummaryMap.get(summary.getYear()+summary.getMonth());
-            summary.setIncome(incomeDetail!=null?incomeDetail.getIncome():0.0);
-            summary.setSavings(incomeDetail!=null?incomeDetail.getIncome()-summary.getExpense():0.0-summary.getExpense());
-            summary.setEstimated(result.stream().filter(estimate -> estimate.year== summary.getYear() &&
-                    estimate.month.equals(summary.getMonth())).mapToDouble(t->t.amount).sum());
-
+            summary.setIncome(Math.round(incomeDetail!=null?incomeDetail.getIncome():0.0));
+            summary.setSavings(Math.round(incomeDetail!=null?incomeDetail.getIncome()-summary.getExpense():0.0-summary.getExpense()));
+            summary.setEstimated(Math.round(result.stream().filter(estimate -> estimate.year== summary.getYear() &&
+                    estimate.month.equals(summary.getMonth())).mapToDouble(t->t.amount).sum()));
+            summary.setExpense(Math.round(summary.getExpense()));
             response.add(summary);
         }
         for(MonthlySummary incomeSummary :incomeSummaryMap.values()) {
             if(expenseSummaryMap.get(incomeSummary.getYear()+incomeSummary.getMonth()) == null) {
-                incomeSummary.setSavings(incomeSummary.getIncome());
-                incomeSummary.setEstimated(result.stream().filter(estimate -> estimate.year== incomeSummary.getYear() &&
-                        estimate.month.equals(incomeSummary.getMonth())).mapToDouble(t->t.amount).sum());
+                incomeSummary.setSavings(Math.round(incomeSummary.getIncome()));
+                incomeSummary.setEstimated(Math.round(result.stream().filter(estimate -> estimate.year== incomeSummary.getYear() &&
+                        estimate.month.equals(incomeSummary.getMonth())).mapToDouble(t->t.amount).sum()));
                 response.add(incomeSummary);
             }
         }
-
+        response.sort((obj1, obj2) -> {
+            if (monthList.indexOf(obj1.getMonth()) > monthList.indexOf(obj2.getMonth())) {
+                return -1;
+            } else if (monthList.indexOf(obj1.getMonth()) < monthList.indexOf(obj2.getMonth())) {
+                return 1;
+            }
+            return 0;
+        });
         return response;
     }
 
