@@ -4,10 +4,15 @@
 
 package com.audit.myexpense.model;
 
+import com.audit.myexpense.util.ExpenseCommonUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * @author Manikandan Narasimhan
@@ -18,119 +23,36 @@ public class AssetDetails {
 
 	@Id
 	@JsonProperty("assetId")
-	private int assetId;
+	public String assetId;
 
-	@JsonProperty("assetName")
-	private String assetName;
-
-	@JsonProperty("assetDocumentNumber")
-	private String assetDocumentNumber;
-
-	@JsonProperty("assetBoughtOn")
-	private String assetBoughtOn;
-
+	@NotNull
 	@JsonProperty("assetType")
-	private String assetType;
+	public String assetType;
 
-	@JsonProperty("assetQty")
-	private int assetQty;
+	@NotNull
+	@JsonProperty("asset")
+	public String asset;
 
-	@JsonProperty("assetCurrentValue")
-	private double assetCurrentValue;
-	
-	@JsonProperty("remarks")
-	private String remarks;
-	
-	@JsonProperty("personAsset")
-	private String personAsset;
+	@NotNull
+	@JsonProperty("description")
+	public String description;
+
+	@NotNull
+	@JsonProperty("assetWeight")
+	public double assetWeight;
+
+	@JsonProperty("addtionalDetails")
+	public String addtionalDetails;
+
+	@NotNull
+	@JsonProperty("status")
+	public String status;
+
+	@JsonIgnore
+	@JsonProperty("updatedDate")
+	public String updatedDate = ExpenseCommonUtil.formattedDate(new Date());
 	
 	public AssetDetails() {
 		super();
 	}
-
-	public AssetDetails(int assetId, String assetName, String assetDocumentNumber, String assetBoughtOn,
-			String assetType, int assetQty, double assetCurrentValue,String remarks) {
-		super();
-		this.assetId = assetId;
-		this.assetName = assetName;
-		this.assetDocumentNumber = assetDocumentNumber;
-		this.assetBoughtOn = assetBoughtOn;
-		this.assetType = assetType;
-		this.assetQty = assetQty;
-		this.assetCurrentValue = assetCurrentValue;
-		this.remarks = remarks;
-	}
-
-	public int getAssetId() {
-		return assetId;
-	}
-
-	public void setAssetId(int assetId) {
-		this.assetId = assetId;
-	}
-
-	public String getAssetName() {
-		return assetName;
-	}
-
-	public void setAssetName(String assetName) {
-		this.assetName = assetName;
-	}
-
-	public String getAssetDocumentNumber() {
-		return assetDocumentNumber;
-	}
-
-	public void setAssetDocumentNumber(String assetDocumentNumber) {
-		this.assetDocumentNumber = assetDocumentNumber;
-	}
-
-	public String getAssetBoughtOn() {
-		return assetBoughtOn;
-	}
-
-	public void setAssetBoughtOn(String assetBoughtOn) {
-		this.assetBoughtOn = assetBoughtOn;
-	}
-
-	public String getAssetType() {
-		return assetType;
-	}
-
-	public void setAssetType(String assetType) {
-		this.assetType = assetType;
-	}
-
-	public int getAssetQty() {
-		return assetQty;
-	}
-
-	public void setAssetQty(int assetQty) {
-		this.assetQty = assetQty;
-	}
-
-	public double getAssetCurrentValue() {
-		return assetCurrentValue;
-	}
-
-	public void setAssetCurrentValue(double assetCurrentValue) {
-		this.assetCurrentValue = assetCurrentValue;
-	}
-
-	public String getRemarks() {
-		return remarks;
-	}
-
-	public void setRemarks(String remarks) {
-		this.remarks = remarks;
-	}
-
-	public String getPersonAsset() {
-		return personAsset;
-	}
-
-	public void setPersonAsset(String personAsset) {
-		this.personAsset = personAsset;
-	}
-	
 }

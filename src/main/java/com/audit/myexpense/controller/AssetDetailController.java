@@ -4,12 +4,10 @@
 
 package com.audit.myexpense.controller;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,35 +17,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.audit.myexpense.model.AssetDetails;
-import com.audit.myexpense.repository.AssetDetailRepository;
 
 /**
  * @author Manikandan Narasimhan
  *
  */
 @RestController
-@RequestMapping("/api/assetDetail")
+@RequestMapping("/api/asset")
 public class AssetDetailController {
 
-	private AssetDetailRepository assetDetailRepository;
+	private final MongoTemplate mongoTemplate;
 
-	public AssetDetailController(AssetDetailRepository assetDetailRepository) {
+	public AssetDetailController( MongoTemplate mongoTemplate) {
 		super();
-		this.assetDetailRepository = assetDetailRepository;
+		this.mongoTemplate = mongoTemplate;
 	}
 
 	/**
-	 * @param assetDetails
+	 * @param assetDetails assetDetails
 	 * @return AssetDetails
 	 */
-	@PostMapping("/saveAssetDetail")
-	public AssetDetails saveAssetDetail(@RequestBody AssetDetails assetDetails) {
-		// fetching all data and sorting the data
-		List<AssetDetails> assetData = assetDetailRepository.findAll().stream()
-				.sorted(Comparator.comparingInt(AssetDetails::getAssetId).reversed()).collect(Collectors.toList());
-		// setting the asset id by taking the maximum id from existing record
-		assetDetails.setAssetId(assetData.size() > 0 ? assetData.get(0).getAssetId() + 1 : 1);
-		return assetDetailRepository.insert(assetDetails);
+	@PostMapping("/assetDetail")
+	public AssetDetails saveAssetDetail(@Validated @RequestBody AssetDetails assetDetails) {
+		assetDetails.assetId = UUID.randomUUID().toString();
+		return mongoTemplate.insert(assetDetails);
 	}
 	
 	/**
@@ -55,21 +48,22 @@ public class AssetDetailController {
 	 */
 	@GetMapping("/assetDetails")
 	public List<AssetDetails> fetchAssetDetails() {
-		return assetDetailRepository.findAll();
+		return mongoTemplate.findAll(AssetDetails.class);
 	}
 
 	/**
-	 * @param assetId
+	 * @param assetId assetId
 	 * @return Map<String, Object>
 	 */
 	@DeleteMapping("/{assetId}")
-	public Map<String, Object> deletePersonalDetail(@PathVariable("assetId") Integer assetId) {
+	public Map<String, Object> deleteAsset(@PathVariable("assetId") String assetId) {
 		Map<String, Object> body = new LinkedHashMap<>();
-		if (assetDetailRepository.findById(assetId) != null) {
-			assetDetailRepository.deleteById(assetId);
-			body.put("message", "asset Id " + assetId.toString() + " deleted sucessfully");
+		AssetDetails assetDetail =mongoTemplate.findById(assetId,AssetDetails.class);
+		if ( assetDetail!= null) {
+			mongoTemplate.remove(assetDetail);
+			body.put("message", "asset Id " + assetDetail.assetId + " deleted sucessfully");
 		} else {
-			body.put("message", assetId.toString() + " not found");
+			body.put("message", assetId + " not found");
 		}
 		return body;
 	}
