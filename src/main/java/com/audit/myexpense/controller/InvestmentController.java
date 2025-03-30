@@ -18,6 +18,7 @@ import java.util.UUID;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/investment")
 public class InvestmentController {
@@ -56,9 +57,27 @@ public class InvestmentController {
         Investments investments= mongoTemplate.findById(investId,Investments.class);
         if (investments != null) {
             mongoTemplate.remove(investments);
-            body.put("message", "investment Id " + investments.investId + " deleted sucessfully");
+            body.put("message", "investment " + investments.investmentDetail + " deleted successfully");
         } else {
             body.put("message", investId + " not found");
+        }
+        return body;
+    }
+
+    /**
+     * @param  data investment data
+     * @return Map<String, Object>
+     */
+    @PatchMapping("/investDetail")
+    public Map<String, Object> updateInvestment(@RequestBody Investments data) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        Investments investments= mongoTemplate.findById(data.investId,Investments.class);
+        if (investments != null) {
+            investments.status=data.status;
+            mongoTemplate.save(investments);
+            body.put("message", "investment Status " + investments.investmentDetail + " updated successfully");
+        } else {
+            body.put("message", "Data not found");
         }
         return body;
     }

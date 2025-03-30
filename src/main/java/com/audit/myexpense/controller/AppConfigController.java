@@ -14,6 +14,7 @@ import java.util.*;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/config")
 public class AppConfigController {

@@ -28,7 +28,6 @@ public class Appliances {
     @JsonProperty("amc")
     public String amc;
 
-    @NotNull
     @JsonFormat(pattern="dd/MM/yyyy")
     @JsonProperty("amcEndDate")
     public Date amcEndDate;

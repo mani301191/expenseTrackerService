@@ -14,6 +14,7 @@ import java.util.UUID;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/career")
 public class CareerDetailController {
@@ -53,7 +54,7 @@ public class CareerDetailController {
         CareerDetails careerDetails =mongoTemplate.findById(id,CareerDetails.class);
         if ( careerDetails!= null) {
             mongoTemplate.remove(careerDetails);
-            body.put("message", " Id " + careerDetails.id + " deleted sucessfully");
+            body.put("message",  careerDetails.recordType+" - "+ careerDetails.orgName+ " deleted sucessfully");
         } else {
             body.put("message", id + " not found");
         }

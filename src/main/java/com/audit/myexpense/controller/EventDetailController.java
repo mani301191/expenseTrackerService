@@ -14,6 +14,7 @@ import java.util.UUID;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/event")
 public class EventDetailController {
@@ -52,7 +53,7 @@ public class EventDetailController {
         EventDetails eventDetails =mongoTemplate.findById(eventId,EventDetails.class);
         if ( eventDetails!= null) {
             mongoTemplate.remove(eventDetails);
-            body.put("message", "event Id " + eventDetails.eventId + " deleted sucessfully");
+            body.put("message", "Record deleted successfully");
         } else {
             body.put("message", eventId + " not found");
         }

@@ -14,6 +14,7 @@ import java.util.UUID;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/appliances")
 public class AppliancesController {
@@ -53,7 +54,7 @@ public class AppliancesController {
         Appliances appliances =mongoTemplate.findById(appliancesId,Appliances.class);
         if ( appliances!= null) {
             mongoTemplate.remove(appliances);
-            body.put("message", "asset Id " + appliances.appliancesId + " deleted sucessfully");
+            body.put("message", "Appliances " + appliances.applianceName + " deleted sucessfully");
         } else {
             body.put("message", appliancesId + " not found");
         }

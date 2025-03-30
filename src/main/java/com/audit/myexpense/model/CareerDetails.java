@@ -34,6 +34,7 @@ public class CareerDetails {
     @JsonProperty("comments")
     public String comments;
 
+    @NotNull
     @JsonFormat(pattern="dd/MM/yyyy")
     @JsonProperty("startDate")
     public Date startDate;

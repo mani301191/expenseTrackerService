@@ -8,13 +8,7 @@ import java.util.*;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.audit.myexpense.model.AssetDetails;
 
@@ -22,6 +16,7 @@ import com.audit.myexpense.model.AssetDetails;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/asset")
 public class AssetDetailController {
@@ -61,9 +56,27 @@ public class AssetDetailController {
 		AssetDetails assetDetail =mongoTemplate.findById(assetId,AssetDetails.class);
 		if ( assetDetail!= null) {
 			mongoTemplate.remove(assetDetail);
-			body.put("message", "asset Id " + assetDetail.assetId + " deleted sucessfully");
+			body.put("message", "asset " + assetDetail.asset  + " deleted successfully");
 		} else {
 			body.put("message", assetId + " not found");
+		}
+		return body;
+	}
+
+	/**
+	 * @param  data asset data
+	 * @return Map<String, Object>
+	 */
+	@PatchMapping("/assetDetail")
+	public Map<String, Object> updateAssetStatus(@RequestBody AssetDetails data) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		AssetDetails assetDetails= mongoTemplate.findById(data.assetId,AssetDetails.class);
+		if (assetDetails != null) {
+			assetDetails.status=data.status;
+			mongoTemplate.save(assetDetails);
+			body.put("message", "asset Status " + assetDetails.asset + " updated successfully");
+		} else {
+			body.put("message", "Data not found");
 		}
 		return body;
 	}

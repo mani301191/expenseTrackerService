@@ -15,6 +15,7 @@ import java.util.UUID;
  * @author Manikandan Narasimhan
  *
  */
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/insurance")
 public class InsuranceController {
@@ -54,7 +55,7 @@ public class InsuranceController {
         InsuranceDetails insuranceDetails= mongoTemplate.findById(insuranceId,InsuranceDetails.class);
         if (insuranceDetails != null) {
             mongoTemplate.remove(insuranceDetails);
-            body.put("message", "insurance Id " + insuranceDetails.insuranceId + " deleted sucessfully");
+            body.put("message", "insurance " + insuranceDetails.insuranceType +" - "+ insuranceDetails.policyNumber + " deleted sucessfully");
         } else {
             body.put("message", insuranceId + " not found");
         }
