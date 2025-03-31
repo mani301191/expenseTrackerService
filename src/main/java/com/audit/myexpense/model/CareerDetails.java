@@ -25,6 +25,10 @@ public class CareerDetails {
     @JsonProperty("recordType")
     public String recordType;
 
+    @NotNull
+    @JsonProperty("recordId")
+    public String recordId;
+
     @JsonProperty("orgName")
     public String orgName;
 

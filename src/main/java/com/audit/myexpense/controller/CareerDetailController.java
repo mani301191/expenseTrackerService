@@ -5,10 +5,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Manikandan Narasimhan
@@ -41,7 +38,11 @@ public class CareerDetailController {
      */
     @GetMapping("/careerDetail")
     public List<CareerDetails> fetchCareerDetail() {
-        return mongoTemplate.findAll(CareerDetails.class);
+        List<CareerDetails> result = mongoTemplate.findAll(CareerDetails.class);
+         result.sort(Comparator.comparing(
+                careerDetail ->careerDetail.endDate,
+                Comparator.nullsFirst(Comparator.reverseOrder())));
+        return  result;
     }
 
     /**
