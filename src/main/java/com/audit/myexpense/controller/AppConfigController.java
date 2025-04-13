@@ -80,4 +80,23 @@ public class AppConfigController {
         }
         return body;
     }
+
+    /**
+     * @return appConfigs
+     */
+    @PostMapping("/default")
+    public Collection<AppConfig> defaultConfig() {
+        List<AppConfig> appConfigs = new ArrayList<>();
+        appConfigs.add(new AppConfig("AssetTypes","Movable,Non-Movable"));
+        appConfigs.add(new AppConfig("Assets","Gold,Silver,Property"));
+        appConfigs.add(new AppConfig("AssetStatus","In-Loan/EMI,In-Locker,In-use,Loan/EMI Closed"));
+        appConfigs.add(new AppConfig("Investment","PF,NPS,SSA,MutaulFund,Equity,BankAccount,FixedDeposits"));
+        appConfigs.add(new AppConfig("InvestmentStatus","Active,InActive,Closed"));
+        appConfigs.add(new AppConfig("InsurenceType","Health,Term,Property,Veichle"));
+        appConfigs.add(new AppConfig("EventType","Birthday,Anniversary,Festival,PaymentDue,Meetings,Travel,Adhoc"));
+
+         mongoTemplate.insertAll(appConfigs);
+
+        return appConfigs;
+    }
 }

@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.audit.myexpense.model.*;
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -103,6 +104,28 @@ public class ExpenseTrackerController {
 			body.put("message", "ExpenseId -"+expenseId + " deleted sucessfully" );
 		} else {
 			body.put("message ",  "ExpenseId -" + expenseId + " not found");
+		}
+		return body;
+	}
+
+	/**
+	 * @param  data expense data
+	 * @return Map<String, Object>
+	 */
+	@PatchMapping("/expenseDetail")
+	public Map<String, Object> updateExpenseDetail(@RequestBody ExpenseDetails data) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		ExpenseDetails expense= mongoTemplate.findById(data.expenseId,ExpenseDetails.class);
+		if (expense != null) {
+			expense.amount=data.amount;
+			expense.expenseType=data.expenseType;
+			expense.expenseOf=data.expenseOf;
+			expense.description=data.description;
+			expense.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
+			mongoTemplate.save(expense);
+			body.put("message", "expense  " + expense.expenseId + " updated successfully");
+		} else {
+			body.put("message", "Data not found");
 		}
 		return body;
 	}

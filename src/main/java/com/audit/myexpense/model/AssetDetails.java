@@ -41,8 +41,8 @@ public class AssetDetails {
 	@JsonProperty("assetWeight")
 	public double assetWeight;
 
-	@JsonProperty("addtionalDetails")
-	public String addtionalDetails;
+	@JsonProperty("additionalDetails")
+	public String additionalDetails;
 
 	@NotNull
 	@JsonProperty("status")

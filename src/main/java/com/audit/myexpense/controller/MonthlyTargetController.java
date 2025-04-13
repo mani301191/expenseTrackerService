@@ -70,7 +70,7 @@ public class MonthlyTargetController {
         MonthlyTarget obj = mongoTemplate.findById(id,MonthlyTarget.class);
         if(obj !=null) {
             mongoTemplate.remove(obj);
-            body.put("message", "id -"+id + " deleted sucessfully" );
+            body.put("message", obj.description + " deleted sucessfully" );
         } else {
             body.put("message ",  "id -" + id + " not found");
         }

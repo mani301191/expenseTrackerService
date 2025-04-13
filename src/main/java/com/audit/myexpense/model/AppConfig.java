@@ -23,4 +23,9 @@ public class AppConfig {
     public AppConfig() {
         super();
     }
+
+    public AppConfig(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
 }

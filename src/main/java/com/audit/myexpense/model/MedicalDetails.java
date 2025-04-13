@@ -6,7 +6,9 @@
 
 package com.audit.myexpense.model;
 
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -48,4 +50,8 @@ public class MedicalDetails {
 
     @JsonProperty("otherDetails")
     public  String otherDetails;
+
+    @JsonIgnore
+    @JsonProperty("updatedDate")
+    public String updatedDate = ExpenseCommonUtil.formattedDate(new Date());
 }

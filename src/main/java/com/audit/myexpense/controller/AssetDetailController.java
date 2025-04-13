@@ -6,6 +6,7 @@ package com.audit.myexpense.controller;
 
 import java.util.*;
 
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -73,6 +74,7 @@ public class AssetDetailController {
 		AssetDetails assetDetails= mongoTemplate.findById(data.assetId,AssetDetails.class);
 		if (assetDetails != null) {
 			assetDetails.status=data.status;
+			assetDetails.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
 			mongoTemplate.save(assetDetails);
 			body.put("message", "asset Status " + assetDetails.asset + " updated successfully");
 		} else {

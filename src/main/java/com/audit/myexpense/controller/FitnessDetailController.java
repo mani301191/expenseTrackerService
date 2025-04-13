@@ -7,6 +7,7 @@
 package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.*;
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -121,9 +122,32 @@ public class FitnessDetailController {
         MedicalDetails medicalDetails = mongoTemplate.findById(id,MedicalDetails.class);
         if(medicalDetails !=null) {
             mongoTemplate.remove(medicalDetails);
-            body.put("message", "medicalDetail - "+id + " deleted sucessfully" );
+            body.put("message", "medicalDetail - "+medicalDetails.patientName + " deleted sucessfully" );
         } else {
-            body.put("message",  "medicalDetail - " + id + " not found");
+            body.put("message",  "medicalDetail  not found");
+        }
+        return body;
+    }
+
+    /**
+     * @param  data medical data
+     * @return Map<String, Object>
+     */
+    @PatchMapping("/medicalDetail")
+    public Map<String, Object> updateMedicalDetail(@RequestBody MedicalDetails data) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        MedicalDetails medicalDetail= mongoTemplate.findById(data.id,MedicalDetails.class);
+        if (medicalDetail != null) {
+            medicalDetail.otherDetails=data.otherDetails;
+            medicalDetail.diagnosis=data.diagnosis;
+            medicalDetail.docterName=data.docterName;
+            medicalDetail.hospital=data.hospital;
+            medicalDetail.problem=data.problem;
+            medicalDetail.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
+            mongoTemplate.save(medicalDetail);
+            body.put("message", "medicalDetail  " + medicalDetail.patientName+ " updated successfully");
+        } else {
+            body.put("message", "Data not found");
         }
         return body;
     }
@@ -169,9 +193,29 @@ public class FitnessDetailController {
         FitnessChartData fitnessChartData = mongoTemplate.findById(id,FitnessChartData.class);
         if(fitnessChartData !=null) {
             mongoTemplate.remove(fitnessChartData);
-            body.put("message", "person weight - "+id + " deleted sucessfully" );
+            body.put("message", "person weight - "+fitnessChartData.personName + " deleted sucessfully" );
         } else {
-            body.put("message",  "person weight - " + id + " not found");
+            body.put("message",  "person weight data not found");
+        }
+        return body;
+    }
+
+    /**
+     * @param  data weight data
+     * @return Map<String, Object>
+     */
+    @PatchMapping("/personDetail/weight")
+    public Map<String, Object> updateWeightDetail(@RequestBody FitnessChartData data) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        FitnessChartData weightDetail= mongoTemplate.findById(data.id,FitnessChartData.class);
+        if (weightDetail != null) {
+            weightDetail.weight=data.weight;
+            weightDetail.height=data.height;
+            weightDetail.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
+            mongoTemplate.save(weightDetail);
+            body.put("message", "weightDetail  " + weightDetail.personName+ " updated successfully");
+        } else {
+            body.put("message", "Data not found");
         }
         return body;
     }
