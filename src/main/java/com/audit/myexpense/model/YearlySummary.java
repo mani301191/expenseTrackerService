@@ -13,7 +13,5 @@ public class YearlySummary {
     public double savings;
     public double estimated;
     public List<Category> category;
-//    public double planned;
-//    public double unPlanned;
-//    public double investment;
+
 }
