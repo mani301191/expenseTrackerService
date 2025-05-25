@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author Manikandan Narasimhan
@@ -42,7 +43,8 @@ public class InsuranceController {
      */
     @GetMapping("/insuranceDetails")
     public List<InsuranceDetails> fetchInsuranceDetails() {
-        return mongoTemplate.findAll(InsuranceDetails.class);
+        List<InsuranceDetails> result=  mongoTemplate.findAll(InsuranceDetails.class);
+        return result.stream().sorted((c1,c2)->c1.endDate.getTime() < c2.endDate.getTime() ? -1 : 1).collect(Collectors.toList());
     }
 
     /**

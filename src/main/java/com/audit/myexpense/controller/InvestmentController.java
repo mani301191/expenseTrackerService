@@ -5,14 +5,12 @@
 package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.Investments;
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Manikandan Narasimhan
@@ -74,6 +72,8 @@ public class InvestmentController {
         Investments investments= mongoTemplate.findById(data.investId,Investments.class);
         if (investments != null) {
             investments.status=data.status;
+            investments.additionalDetails=data.additionalDetails;
+            investments.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
             mongoTemplate.save(investments);
             body.put("message", "investment Status " + investments.investmentDetail + " updated successfully");
         } else {

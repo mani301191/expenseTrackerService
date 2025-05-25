@@ -1,14 +1,13 @@
 package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.Appliances;
+import com.audit.myexpense.model.AssetDetails;
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Manikandan Narasimhan
@@ -57,6 +56,29 @@ public class AppliancesController {
             body.put("message", "Appliances " + appliances.applianceName + " deleted sucessfully");
         } else {
             body.put("message", appliancesId + " not found");
+        }
+        return body;
+    }
+
+    /**
+     * @param  data appliances data
+     * @return Map<String, Object>
+     */
+    @PatchMapping("/appliancesDetail")
+    public Map<String, Object> updateAppliancesDetail(@RequestBody Appliances data) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        Appliances appliances= mongoTemplate.findById(data.appliancesId,Appliances.class);
+        if (appliances != null) {
+            appliances.applianceName=data.applianceName;
+            appliances.additionalDetails=data.additionalDetails;
+            appliances.amc=data.amc;
+            appliances.amcEndDate=data.amcEndDate;
+            appliances.lastServicedDate=data.lastServicedDate;
+            appliances.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
+            mongoTemplate.save(appliances);
+            body.put("message", "appliances " + appliances.applianceName + " updated successfully");
+        } else {
+            body.put("message", "Data not found");
         }
         return body;
     }
