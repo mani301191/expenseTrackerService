@@ -123,7 +123,7 @@ public class ExpenseTrackerController {
 			expense.description=data.description;
 			expense.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
 			mongoTemplate.save(expense);
-			body.put("message", "expense  " + expense.expenseId + " updated successfully");
+			body.put("message", "expense  " + expense.expenseId +" - "+expense.expenseOf+ " updated successfully");
 		} else {
 			body.put("message", "Data not found");
 		}

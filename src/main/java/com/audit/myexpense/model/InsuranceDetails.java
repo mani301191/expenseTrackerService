@@ -47,6 +47,9 @@ public class InsuranceDetails {
     @JsonProperty("endDate")
     public Date endDate;
 
+    @JsonProperty("additionalDetails")
+    public String additionalDetails;
+
     @JsonIgnore
     @JsonProperty("updatedDate")
     public String updatedDate = ExpenseCommonUtil.formattedDate(new Date());

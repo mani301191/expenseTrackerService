@@ -2,14 +2,12 @@ package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.InsuranceDetails;
 import com.audit.myexpense.model.Investments;
+import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,6 +58,25 @@ public class InsuranceController {
             body.put("message", "insurance " + insuranceDetails.insuranceType +" - "+ insuranceDetails.policyNumber + " deleted sucessfully");
         } else {
             body.put("message", insuranceId + " not found");
+        }
+        return body;
+    }
+
+    /**
+     * @param  data insurance data
+     * @return Map<String, Object>
+     */
+    @PatchMapping("/insuranceDetail")
+    public Map<String, Object> updateInsurance(@RequestBody InsuranceDetails data) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        InsuranceDetails insurance= mongoTemplate.findById(data.insuranceId,InsuranceDetails.class);
+        if (insurance != null) {
+            insurance.additionalDetails=data.additionalDetails;
+            insurance.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
+            mongoTemplate.save(insurance);
+            body.put("message", "insurance  " + insurance.insuranceProvider + " updated successfully");
+        } else {
+            body.put("message", "Data not found");
         }
         return body;
     }
