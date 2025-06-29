@@ -3,6 +3,8 @@
  */
 package com.audit.myexpense.controller;
 
+import com.audit.myexpense.model.DayWiseExpense;
+import com.audit.myexpense.model.ExpenseDetails;
 import com.audit.myexpense.model.MonthlySummary;
 import com.audit.myexpense.model.MonthlyTarget;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -12,10 +14,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -101,4 +104,50 @@ public class MonthlySummaryController {
         );
         return mongoTemplate.aggregate(agg,collectionName ,MonthlySummary.class);
     }
-}
+
+    @GetMapping("/dailySummary")
+    public List<DayWiseExpense> dailySummary(@RequestParam Integer year,
+                                               @RequestParam String month) {
+
+        int monthIndex = monthList.indexOf(month); // Get the month index (0-based)
+        if (monthIndex == -1) {
+            throw new IllegalArgumentException("Invalid month name: " + month);
+        }
+
+        // Convert month index to 1-based (required for YearMonth)
+        monthIndex += 1;
+
+        // Create YearMonth object for the given year and month
+        YearMonth yearMonth = YearMonth.of(year, monthIndex);
+
+        // Get the start and end dates of the given month
+        LocalDate startDate = yearMonth.atDay(1); // First day of the month
+        LocalDate endDate = yearMonth.atEndOfMonth(); // Last day of the month
+
+        // Query to fetch expenses for the given month
+        Query query = new Query(Criteria.where("expenseDate")
+                .gte(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()))
+                .lte(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant())));
+        List<ExpenseDetails> expenses = mongoTemplate.find(query, ExpenseDetails.class, "myExpenseDetail");
+
+        // Format the expenseDate to YYYY-MM-DD and group by date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        // Group expenses by date and calculate the sum for each day
+        Map<String, Double> expenseMap = expenses.stream()
+                .collect(Collectors.groupingBy(
+                        expense -> expense.expenseDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(formatter),
+                        Collectors.summingDouble(b-> b.amount)
+                ));
+
+        // Generate a list of DayWiseExpense for all days in the month
+        List<DayWiseExpense> dayWiseExpenses = new ArrayList<>();
+        for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
+            String date = yearMonth.atDay(day).toString(); // Format: YYYY-MM-DD
+            double expense = expenseMap.getOrDefault(date, 0.0); // Default to 0 if no expense
+            dayWiseExpenses.add(new DayWiseExpense(date, expense));
+        }
+
+        return dayWiseExpenses;
+    }
+
+    }
