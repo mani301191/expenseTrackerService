@@ -33,6 +33,9 @@ public class EventDetails {
     @JsonProperty("eventDetail")
     public String eventDetail;
 
+    @JsonProperty("recurrence")
+    public String recurrence="None";
+
     @JsonIgnore
     @JsonProperty("updatedDate")
     public String updatedDate = ExpenseCommonUtil.formattedDate(new Date());

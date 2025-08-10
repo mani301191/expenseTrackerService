@@ -1,14 +1,13 @@
 package com.audit.myexpense.controller;
 
 import com.audit.myexpense.model.EventDetails;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Manikandan Narasimhan
@@ -40,7 +39,9 @@ public class EventDetailController {
      */
     @GetMapping("/eventDetail")
     public List<EventDetails> fetchEventDetails() {
-        return mongoTemplate.findAll(EventDetails.class);
+        Query query = new Query();
+        query.with(Sort.by(Sort.Direction.ASC, "eventDate"));
+        return mongoTemplate.find(query, EventDetails.class);
     }
 
     /**
@@ -53,7 +54,7 @@ public class EventDetailController {
         EventDetails eventDetails =mongoTemplate.findById(eventId,EventDetails.class);
         if ( eventDetails!= null) {
             mongoTemplate.remove(eventDetails);
-            body.put("message", "Record deleted successfully");
+            body.put("message", eventDetails.eventDetail+" Record deleted successfully");
         } else {
             body.put("message", eventId + " not found");
         }

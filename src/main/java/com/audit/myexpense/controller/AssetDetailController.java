@@ -35,7 +35,7 @@ public class AssetDetailController {
 	 */
 	@PostMapping("/assetDetail")
 	public AssetDetails saveAssetDetail(@Validated @RequestBody AssetDetails assetDetails) {
-		assetDetails.assetId = UUID.randomUUID().toString();
+		assetDetails.id = UUID.randomUUID().toString();
 		return mongoTemplate.insert(assetDetails);
 	}
 	
@@ -48,18 +48,18 @@ public class AssetDetailController {
 	}
 
 	/**
-	 * @param assetId assetId
+	 * @param id assetId
 	 * @return Map<String, Object>
 	 */
-	@DeleteMapping("/{assetId}")
-	public Map<String, Object> deleteAsset(@PathVariable("assetId") String assetId) {
+	@DeleteMapping("/{id}")
+	public Map<String, Object> deleteAsset(@PathVariable("id") String id) {
 		Map<String, Object> body = new LinkedHashMap<>();
-		AssetDetails assetDetail =mongoTemplate.findById(assetId,AssetDetails.class);
+		AssetDetails assetDetail =mongoTemplate.findById(id,AssetDetails.class);
 		if ( assetDetail!= null) {
 			mongoTemplate.remove(assetDetail);
-			body.put("message", "asset " + assetDetail.asset  + " deleted successfully");
+			body.put("message", "asset " + assetDetail.name  + " deleted successfully");
 		} else {
-			body.put("message", assetId + " not found");
+			body.put("message", id + " not found");
 		}
 		return body;
 	}
@@ -71,12 +71,16 @@ public class AssetDetailController {
 	@PatchMapping("/assetDetail")
 	public Map<String, Object> updateAssetStatus(@RequestBody AssetDetails data) {
 		Map<String, Object> body = new LinkedHashMap<>();
-		AssetDetails assetDetails= mongoTemplate.findById(data.assetId,AssetDetails.class);
+		AssetDetails assetDetails= mongoTemplate.findById(data.id,AssetDetails.class);
 		if (assetDetails != null) {
+			assetDetails.comments= data.comments;
+			assetDetails.name=data.name;
+			assetDetails.image=data.image;
+			assetDetails.type=data.type;
 			assetDetails.status=data.status;
 			assetDetails.updatedDate= ExpenseCommonUtil.formattedDate(new Date());
 			mongoTemplate.save(assetDetails);
-			body.put("message", "asset Status " + assetDetails.asset + " updated successfully");
+			body.put("message", "asset " + assetDetails.name + " updated successfully");
 		} else {
 			body.put("message", "Data not found");
 		}

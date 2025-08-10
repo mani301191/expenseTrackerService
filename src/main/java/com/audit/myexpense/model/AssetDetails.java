@@ -22,31 +22,23 @@ import java.util.Date;
 public class AssetDetails {
 
 	@Id
-	@JsonProperty("assetId")
-	public String assetId;
+	@JsonProperty("id")
+	public String id;
 
-	@NotNull
-	@JsonProperty("assetType")
-	public String assetType;
+	@JsonProperty("name")
+	public String name;
 
-	@NotNull
-	@JsonProperty("asset")
-	public String asset;
-
-	@NotNull
-	@JsonProperty("description")
-	public String description;
-
-	@NotNull
-	@JsonProperty("assetWeight")
-	public double assetWeight;
-
-	@JsonProperty("additionalDetails")
-	public String additionalDetails;
-
-	@NotNull
 	@JsonProperty("status")
 	public String status;
+
+	@JsonProperty("comments")
+	public String comments;
+
+	@JsonProperty("image")
+	public String image;
+
+	@JsonProperty("type")
+	public String type;
 
 	@JsonIgnore
 	@JsonProperty("updatedDate")
