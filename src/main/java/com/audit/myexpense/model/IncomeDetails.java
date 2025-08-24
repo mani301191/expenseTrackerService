@@ -8,6 +8,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.audit.myexpense.util.ExpenseCommonUtil;
@@ -20,6 +21,7 @@ import javax.validation.constraints.NotNull;
  *
  */
 @Document(collection = "myIncomeDetail")
+@CompoundIndex(name = "uniq_incomeDate_amount_source", def = "{'incomeDate': 1, 'amount': 1, 'source': 1}", unique = true)
 public class IncomeDetails {
 
 	@Id

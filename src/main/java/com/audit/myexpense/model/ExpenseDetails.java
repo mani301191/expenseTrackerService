@@ -10,6 +10,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.audit.myexpense.util.ExpenseCommonUtil;
@@ -22,6 +23,7 @@ import javax.validation.constraints.NotNull;
  *
  */
 @Document(collection = "myExpenseDetail")
+@CompoundIndex(name = "uniq_expenseDate_amount_desc", def = "{'expenseDate': 1, 'amount': 1, 'description': 1}", unique = true)
 public class ExpenseDetails implements Serializable {
 
 
