@@ -2,10 +2,12 @@ package com.audit.myexpense.upload;
 
 import com.audit.myexpense.model.ExpenseDetails;
 import com.audit.myexpense.model.IncomeDetails;
+import com.audit.myexpense.model.MonthlyTarget;
 import com.audit.myexpense.util.ExpenseCommonUtil;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -100,9 +100,9 @@ public class ExpenseUploadController {
                 exp.year = cal.get(Calendar.YEAR);
                 exp.expenseDate = date;
                 exp.amount = amount;
-                exp.expenseOf = "Uncategorized";
+                exp.expenseOf = findMatchingExpenseOf(description,exp.year ,exp.month);
                 exp.description = description;
-                exp.expenseType = "UnPlanned";
+                exp.expenseType = determineExpenseType( exp.expenseOf);
                 exp.updatedDate = ExpenseCommonUtil.formattedDate(new Date());
             try {
                 mongoTemplate.insert(exp, "myExpenseDetail");
@@ -164,5 +164,41 @@ public class ExpenseUploadController {
         }
     }
 
+
+    private String findMatchingExpenseOf(String txnDescription, int year, String month) {
+        Query targetQuery = new Query();
+        targetQuery.addCriteria(Criteria.where("year").is(year).and("month").is(month));
+        List<MonthlyTarget> targets = mongoTemplate.find(targetQuery, MonthlyTarget.class, "myMonthlyTarget");
+
+        if (targets == null || targets.isEmpty()) {
+            return "Uncategorized";
+        }
+
+        String normalizedTxn = txnDescription.toLowerCase();
+
+        // Simple contains check (can be replaced with fuzzy)
+        for (MonthlyTarget t : targets) {
+            if (normalizedTxn.contains(t.description.toLowerCase())) {
+                return t.description;
+            }
+        }
+
+        return "Uncategorized";
+    }
+
+    private String determineExpenseType(String expenseOf) {
+        if ("Uncategorized".equals(expenseOf)) {
+            return "UnPlanned";
+        }
+        String normalized = expenseOf.toLowerCase();
+        // investmentKeywords should be updated as configurable
+        List<String> investmentKeywords = Arrays.asList("nps", "ssa", "zerodha", "coin", "sip", "mutual fund");
+        for (String keyword : investmentKeywords) {
+            if (normalized.contains(keyword)) {
+                return "Investment";
+            }
+        }
+        return "Planned";
+    }
 
 }
