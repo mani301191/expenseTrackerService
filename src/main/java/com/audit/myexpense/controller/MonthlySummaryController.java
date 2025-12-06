@@ -14,9 +14,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -126,8 +124,8 @@ public class MonthlySummaryController {
 
         // Query to fetch expenses for the given month
         Query query = new Query(Criteria.where("expenseDate")
-                .gte(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()))
-                .lte(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant())));
+                .gte(Date.from(startDate.atStartOfDay(ZoneOffset.UTC).toInstant()))
+                .lte(Date.from(endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant())));
         List<ExpenseDetails> expenses = mongoTemplate.find(query, ExpenseDetails.class, "myExpenseDetail");
 
         // Format the expenseDate to YYYY-MM-DD and group by date
