@@ -20,7 +20,7 @@ public class ExpenseViewController {
 	 * @param model
 	 * @return myexpense
 	 */
-	@RequestMapping("/")
+	@RequestMapping({"/", "/dashboard"})
 	public String myexpense(Model model) {
 		return "index";
 	}
