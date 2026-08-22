@@ -14,6 +14,8 @@
 	<description>mongoDB based project for income/savings details</description>
 	<properties>
 		<java.version>1.8</java.version>
+		<!-- Where the Spring Boot fat jar is written. Override with -Dspring-boot.jar.outputDir=... (used by CI) -->
+		<spring-boot.jar.outputDir>D://src/application/</spring-boot.jar.outputDir>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -50,7 +52,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<outputDirectory>D://src/application/</outputDirectory>
+					<outputDirectory>${spring-boot.jar.outputDir}</outputDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
