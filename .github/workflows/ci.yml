@@ -11,6 +11,18 @@ jobs:
     name: Build, Test & Coverage
     runs-on: ubuntu-latest
 
+    # Throwaway MongoDB for @SpringBootTest context load (app expects localhost:27018)
+    services:
+      mongo:
+        image: mongo:4.4
+        ports:
+          - 27018:27017
+        options: >-
+          --health-cmd "mongo --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
