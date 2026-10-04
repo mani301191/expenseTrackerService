@@ -204,4 +204,30 @@ class ExpenseUploadControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(response.getBody()).contains("Error processing statement:").contains("corrupted stream");
     }
+
+    private static MockMultipartFile csv() throws IOException {
+        String content = "Sr No,Transaction Date,Value Date,Description,Cheque No,Amount,Dr/Cr,Balance\n" +
+                "1,15-01-2024 10:30:00,15-01-2024 10:30:00,GROCERIES MART PURCHASE,12345,\"1,000.50\",DR,5000.00\n" +
+                "2,31-01-2024 17:45:00,31-01-2024 17:45:00,SALARY CREDIT JANUARY,0,\"50,000.00\",CR,55000.00\n";
+        return new MockMultipartFile("file", "KM8137398_statement (3).csv",
+                "text/csv", content.getBytes());
+    }
+
+    @Test
+    void csvFileProcessesCorrectly() throws Exception {
+        when(mongoTemplate.findOne(any(Query.class), eq(ExpenseDetails.class))).thenReturn(null);
+        when(mongoTemplate.findOne(any(Query.class), eq(IncomeDetails.class))).thenReturn(null);
+        when(mongoTemplate.find(any(Query.class), eq(MonthlyTarget.class), eq("myMonthlyTarget")))
+                .thenReturn(Collections.singletonList(target("Groceries")));
+        when(mongoTemplate.insert(any(ExpenseDetails.class), eq("myExpenseDetail")))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(mongoTemplate.insert(any(IncomeDetails.class), eq("myIncomeDetail")))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<String> response = controller.uploadStatement(csv());
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(mongoTemplate).insert(any(ExpenseDetails.class), eq("myExpenseDetail"));
+        verify(mongoTemplate).insert(any(IncomeDetails.class), eq("myIncomeDetail"));
+    }
 }
