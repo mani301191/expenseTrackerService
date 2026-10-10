@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
