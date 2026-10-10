@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.audit.myexpense.util.ExpenseCommonUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author Manikandan Narasimhan
