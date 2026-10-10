@@ -4,8 +4,8 @@
 This is an Expense Tracking Application built using **Spring Boot** and **MongoDB**. The application allows users to track their expenses efficiently with features like duplicate record validation and formatted date handling.
 
 ## Prerequisites
-- **Java 17** or higher
-- **Maven** (for dependency management)
+- **Java 25** (Spring Boot 3.5.16 / Tomcat 10 — a JDK 17+ is required, 25 is used here)
+- **Maven 3.6.3+** (dependency management; the checked-in `mvnw` wrapper is stale — use a system `mvn`)
 - **MongoDB** (running on `localhost:27018` as per the default configuration)
 
 ## Features
@@ -19,6 +19,10 @@ The application uses the following default configurations (defined in `applicati
 - **MongoDB URI**: `mongodb://localhost:27018/personal`
 - **Server Port**: `8003`
 - **Spring MVC View Suffix**: `.html`
+
+## Observability
+- **Actuator** endpoint `/actuator/prometheus` exposes Prometheus metrics (health, info, HTTP server metrics with histograms enabled).
+- HTTP metrics carry the tag `application=myexpense` (`management.metrics.tags.application`).
 
 ## Project Structure
 - **`src/main/java/com/audit/myexpense/util/ExpenseCommonUtil.java`**: Contains utility methods like `formattedDate` for date formatting.

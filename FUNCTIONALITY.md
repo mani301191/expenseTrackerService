@@ -4,13 +4,20 @@ A Spring Boot REST backend for a personal expense/income tracking application, b
 
 ## Tech Stack & Build
 
-- **Spring Boot 2.5.0** (Java 8 target), Maven (`mvnw` wrapper included)
+- **Spring Boot 3.5.16** (Java 25, `jakarta.*` namespace), Maven 3.6.3+ (the `mvnw` wrapper is stale — use a system `mvn`)
 - **spring-boot-starter-web** — REST API
 - **spring-boot-starter-data-mongodb** — persistence via `MongoTemplate`
 - **spring-boot-starter-validation** — `@Valid`/`@Validated` request-body checks
-- **Apache POI 5.2.3 (poi-ooxml)** — Excel bank-statement import
+- **Apache POI 5.5.1 (poi-ooxml)** — Excel bank-statement import
+- **spring-boot-starter-actuator + micrometer-registry-prometheus** — `/actuator/prometheus` metrics for Grafana
 - Entry point: `MyExpenseApplication` (`src/main/java/com/audit/myexpense/MyExpenseApplication.java`)
-- Build output: the Spring Boot plugin copies the jar to `D://src/application/`
+- Build output: the Spring Boot plugin copies the jar to `D://src/application/` (CI overrides via `-Dspring-boot.jar.outputDir=target`)
+
+## Runtime requirements
+
+- **Java 25** (Spring Boot 3.5.16 / Tomcat 10.1), build verified with Adoptium Temurin JDK 25
+- **MongoDB** on `localhost:27018`, database `personal`
+- **CI** (`.github/workflows/ci.yml`) provisions JDK 25 and a throwaway Mongo service for tests
 
 ## Architecture Notes
 
@@ -23,9 +30,12 @@ A Spring Boot REST backend for a personal expense/income tracking application, b
 | Property | Value |
 |---|---|
 | Server port | `8003` |
-| MongoDB URI | `mongodb://localhost:27018/personal` |
+| MongoDB URI | `mongodb://localhost:27018/demo` |
 | Auto index creation | enabled (creates unique compound indexes) |
 | MVC view suffix | `.html` |
+| Actuator endpoints exposed | `prometheus, health, info` |
+| Prometheus export | enabled; percentiles-histogram on `http.server.requests` |
+| Common metric tag | `application=myexpense` |
 
 ## Feature Areas & API Endpoints
 
@@ -127,9 +137,9 @@ Response DTOs (not persisted): `DashboardData`, `ExpenseTrackingSummary`, `Month
 ## Running
 
 ```bash
-# prerequisites: Java 8+, Maven, MongoDB on localhost:27018
-mvnw clean install
-mvnw spring-boot:run
+# prerequisites: Java 25, Maven 3.6.3+, MongoDB on localhost:27018
+mvn clean install
+mvn spring-boot:run
 ```
 
 Then open `http://localhost:8003` (serves the bundled Angular UI) or call the APIs directly. CORS permits the Angular dev server at `http://localhost:4200`.
